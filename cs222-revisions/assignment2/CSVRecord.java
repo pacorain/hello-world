@@ -33,6 +33,61 @@ import java.util.Map.Entry;
  * @version $Id$
  */
 public final class CSVRecord implements Serializable, Iterable<String> {
+	
+	public class Builder {
+		private String[] assertStringArray();
+		private Map<String, Integer> mapping;
+		private String comment;
+		private long recordNumber;
+		private long characterPosition;
+		
+		/** The values of the record */
+		public Builder withValues(String[] values) {
+			this.values = assertStringArray(values);
+			return this;
+		}
+		
+		private assertStringArray(String[] strings) {
+			if (strings == null) {
+				strings = EMPTY_STRING_ARRAY;
+			}
+			return strings;
+		}
+		
+		/**
+		 *  The column name to index mapping.
+		 */
+		public Builder withMapping(Map<String, Integer> mapping) {
+			this.mapping = mapping;
+			return this;
+		}
+		
+		/** 
+		 * The accumulated comments (if any) 
+		 */
+		public Builder withComment(String comment) {
+			this.comment = comment;
+			return this;
+		}
+		
+		/** The record number. */
+		public Builder withRecordNumber(long recordNumber) {
+			this.recordNumber = recordNumber;
+			return this;
+		}
+		
+		/**
+		 * The character position of this record.
+		 */
+		public Builder withCharacterPosition(long characterPosition) {
+			this.characterPosition = characterPosition;
+			return this;
+		}
+		
+		public CSVRecord build() {
+			return new CSVRecord(this);
+		}
+	}
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 	private static final long serialVersionUID = 1L;
@@ -44,21 +99,13 @@ public final class CSVRecord implements Serializable, Iterable<String> {
     public final long recordNumber;
     public final String[] values;
 
-    CSVRecord(final String[] values, final Map<String, Integer> mapping, final String comment, final long recordNumber,
-            final long characterPosition) {
-        this.recordNumber = recordNumber;
-        this.values = assertStringArray(values);
-        this.mapping = mapping;
-        this.comment = comment;
-        this.characterPosition = characterPosition;
+    private CSVRecord(Builder builder) {
+    	mapping = builder.mapping;
+    	characterPosition = builder.characterPosition;
+    	comment = builder.comment;
+    	recordNumber = builder.recordNumber;
+    	values = builder.values;
     }
-	
-	private assertStringArray(String[] values) {
-		if (values != null)
-			return values;
-		else 
-			return EMPTY_STRING_ARRAY;
-	}
 	
     public String getByEnum(final Enum<?> e) {
         return get(e.toString());
